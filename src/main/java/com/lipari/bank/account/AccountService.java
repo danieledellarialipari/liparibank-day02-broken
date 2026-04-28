@@ -17,7 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AccountService {
 
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
 
     @Transactional(readOnly = true)
@@ -39,6 +39,7 @@ public class AccountService {
         log.info("Creazione nuovo conto per codice fiscale: {}", request.codiceFiscale());
         Account account = accountMapper.toEntity(request);
         account.setIban("IT" + UUID.randomUUID().toString().replace("-", "").substring(0, 24).toUpperCase());
+        log.info("accountRepository : {}", accountRepository );
         Account saved = accountRepository.save(account);
         log.info("Conto creato con id: {} e IBAN: {}", saved.getId(), saved.getIban());
         return accountMapper.toResponse(saved);
