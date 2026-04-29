@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Service
@@ -61,5 +62,29 @@ public class AccountService {
             throw new RuntimeException("Conto non trovato con id: " + id);
         }
         accountRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AccountResponse> searchByBalance(Pageable pageable, BigDecimal minBalance, BigDecimal maxBalance) {
+
+        if (minBalance != null && maxBalance != null) {
+            return accountRepository
+                    .findByBalanceBetween(minBalance, maxBalance, pageable)
+                    .map(accountMapper::toResponse);
+        }
+        if (minBalance != null) {
+            return accountRepository
+                    .findByBalanceGreaterThanEqual(minBalance, pageable)
+                    .map(accountMapper::toResponse);
+        }
+        if (maxBalance != null) {
+            return accountRepository
+                    .findByBalanceLessThanEqual(maxBalance, pageable)
+                    .map(accountMapper::toResponse);
+        }
+
+        return accountRepository
+                .findAll(pageable)
+                .map(accountMapper::toResponse);
     }
 }

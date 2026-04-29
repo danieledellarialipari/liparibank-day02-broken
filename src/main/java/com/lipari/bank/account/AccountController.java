@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.net.URI;
 
 @RestController
@@ -95,5 +96,19 @@ public class AccountController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         accountService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "TBD", description = "TBD")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Conto trovato"),
+            @ApiResponse(responseCode = "404", description = "Conto non trovato")
+    })
+    public ResponseEntity<Page<AccountResponse>> search(
+            @PageableDefault(size = 20, sort = "createdAt") Pageable pageable,
+            @RequestParam(required = false) BigDecimal minBalance,
+            @RequestParam(required = false) BigDecimal maxBalance
+    ) {
+        return ResponseEntity.ok(accountService.searchByBalance(pageable, minBalance, maxBalance));
     }
 }
